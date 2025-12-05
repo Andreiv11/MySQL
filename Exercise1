@@ -1,0 +1,132 @@
+CREATE DATABASE EXAMEN;
+CREATE TABLE Clienti (
+ID INT primary key,
+NUME VARCHAR(50),
+PRENUME VARCHAR(50),
+TELEFON VARCHAR(20),
+ADRESA VARCHAR(200)
+);
+
+CREATE TABLE MAGAZINE (
+ID INT primary key,
+NUME_MAGAZIN VARCHAR(50),
+ORAS VARCHAR(50),
+Data_inchiriere datetime default current_timestamp,
+ADRESA VARCHAR(200)
+);
+
+CREATE TABLE FILME (
+ID INT primary key,
+NUME_FILM VARCHAR(50),
+GEN_FILM VARCHAR(50),
+DURATA_MINUTE INT,
+DATA_LANSARE DATE,
+NUMAR_STELE INT CHECK (NUMAR_STELE BETWEEN 1 AND 5)
+);
+
+CREATE TABLE INCHIRIERI (
+ID int,
+data_inchiriere date,
+id_film int,
+id_magazin int,
+id_client int,
+data_retur date,
+FOREIGN KEY (id_film) REFERENCES filme(id),
+FOREIGN KEY (id_magazin) REFERENCES magazine(id),
+FOREIGN KEY (id_client) REFERENCES clienti(id)
+);
+
+INSERT INTO Clienti (ID, NUME, PRENUME, TELEFON, ADRESA) VALUES
+(1, 'Popescu', 'Andrei', '0723456789', 'Str. Libertății 10, București'),
+(2, 'Ionescu', 'Maria', '0734567890', 'Str. Victoriei 23, Cluj-Napoca'),
+(3, 'Georgescu', 'Ion', '0745678901', 'Bd. Eroilor 5, Brașov'),
+(4, 'Dumitrescu', 'Elena', '0756789012', 'Str. Revoluției 17, Timișoara'),
+(5, 'Radu', 'Mihai', '0767890123', 'Calea București 88, Craiova'),
+(6, 'Marin', 'Ioana', '0778901234', 'Str. Primăverii 1, Iași'),
+(7, 'Stan', 'Gabriel', '0789012345', 'Str. Avram Iancu 3, Constanța'),
+(8, 'Iliescu', 'Anca', '0790123456', 'Str. Lalelelor 12, Oradea'),
+(9, 'Neagu', 'Florin', '0701234567', 'Str. Zorilor 9, Sibiu'),
+(10, 'Moldovan', 'Dana', '0712345678', 'Str. Independenței 14, Arad');
+INSERT INTO Clienti (ID, NUME, PRENUME, TELEFON, ADRESA) VALUES
+(11, 'Mordean', 'Andrei', '08473737722', 'Str. Muncii 10, Tulcea');
+INSERT INTO MAGAZINE (ID, NUME_MAGAZIN, ORAS, ADRESA) VALUES
+(1, 'MovieZone', 'București', 'Bd. Unirii 50'),
+(2, 'CineRent', 'Cluj-Napoca', 'Str. Memorandumului 3'),
+(3, 'FilmExpress', 'Brașov', 'Str. Mureșenilor 21'),
+(4, 'Rent-a-Film', 'Timișoara', 'Bd. Regele Ferdinand 17'),
+(5, 'CineShop', 'Iași', 'Str. Palat 5'),
+(6, 'MovieCorner', 'Craiova', 'Str. Mihai Viteazul 6'),
+(7, 'Blockbuster', 'Constanța', 'Bd. Tomis 100'),
+(8, 'CinemaRent', 'Sibiu', 'Str. Nicolae Bălcescu 40'),
+(9, 'Filmania', 'Oradea', 'Bd. Decebal 77'),
+(10, 'RentFlicks', 'Arad', 'Str. Mețianu 2');
+
+INSERT INTO FILME (ID, NUME_FILM, GEN_FILM, DURATA_MINUTE, DATA_LANSARE, NUMAR_STELE) VALUES
+(1, 'Inception', 'Sci-Fi', 148, '2010-07-16', 5),
+(2, 'The Godfather', 'Drama', 175, '1972-03-24', 5),
+(3, 'Titanic', 'Romance', 195, '1997-12-19', 4),
+(4, 'The Matrix', 'Action', 136, '1999-03-31', 5),
+(5, 'Avengers: Endgame', 'Superhero', 181, '2019-04-26', 4),
+(6, 'Joker', 'Thriller', 122, '2019-10-04', 4),
+(7, 'Interstellar', 'Sci-Fi', 169, '2014-11-07', 5),
+(8, 'Frozen', 'Animation', 102, '2013-11-27', 3),
+(9, 'Parasite', 'Thriller', 132, '2019-05-30', 5),
+(10, 'Toy Story', 'Animation', 81, '1995-11-22', 4);
+
+INSERT INTO INCHIRIERI (ID, data_inchiriere, id_film, id_magazin, id_client, data_retur) VALUES
+(1, '2025-06-01', 1, 1, 1, '2020-06-08'),
+(2, '2025-06-02', 3, 2, 2, '2020-06-09'),
+(3, '2025-06-03', 5, 3, 3, '2025-06-10'),
+(4, '2025-06-04', 2, 4, 4, '2023-06-11'),
+(5, '2025-06-05', 6, 5, 5, '2025-06-12'),
+(6, '2025-06-06', 4, 6, 6, '2021-06-13'),
+(7, '2025-06-07', 7, 7, 7, '2025-06-14'),
+(8, '2025-06-08', 8, 8, 8, '2024-06-15'),
+(9, '2025-06-09', 9, 9, 9, '2024-06-16'),
+(10, '2025-06-10', 10, 10, 10, '2022-06-17');
+
+-- EXERCIȚII 
+-- 1. Afișați numărul de filme închiriate în anul 2021;
+SELECT COUNT(ID) FROM INCHIRIERI
+WHERE YEAR(DATA_retur) = 2021;
+-- 2. Care sunt numele clientilor care au inchiriat filme in luna ianuarie 2024?
+SELECT clienti.nume, inchirieri.data_retur from clienti
+join inchirieri on inchirieri.id_client = clienti.id
+where year(inchirieri.data_retur) = 2024 and month(inchirieri.data_retur) = 6;
+-- 3. Care este numărul de închirieri din anul 2021, în magazinele din orașul Oradea ?
+SELECT COUNT(INCHIRIERI.ID), MAGAZINE.NUME_MAGAZIN, DATA_retur FROM INCHIRIERI
+inner join magazine on magazine.id = inchirieri.id_magazin
+GROUP BY MAGAZINE.NUME_MAGAZIN, data_retur
+HAVING YEAR(DATA_retur) = 2021;
+-- 4. Lista numelor filmelor si numarul de inchirieri din mai 2021 si august 2021.
+SELECT filme.NUME_FILM, count(inchirieri.ID) from filme
+join inchirieri on inchirieri.id_film = filme.id
+WHERE YEAR(inchirieri.data_retur) = 2020 
+  AND MONTH(inchirieri.data_retur) IN (6, 5)
+group by filme.NUME_FILM;
+-- 5. Aflati numele clientului care nu a facut nicio inchiriere.
+Select clienti.ID, clienti.NUME, clienti.PRENUME, clienti.TELEFON, clienti.ADRESA, count(INCHIRIERI.ID) from Clienti
+left Join Inchirieri on inchirieri.id_client = clienti.id
+group by clienti.ID, clienti.NUME, clienti.PRENUME, clienti.TELEFON, clienti.ADRESA
+Having count(INCHIRIERI.ID) = 0;
+SELECT c.NUME, c.PRENUME
+FROM clienti c
+LEFT JOIN inchirieri i ON c.ID = i.id_client
+WHERE i.id_client IS NULL;
+-- 6. Lista cu filmele care au avut sub 5 inchirieri in 2023.
+SELECT filme.NUME_FILM, count(inchirieri.ID) from filme
+join inchirieri on inchirieri.id_film = filme.id
+WHERE YEAR(inchirieri.data_retur) = 2023 
+group by filme.NUME_FILM
+having count(inchirieri.ID) < 5;
+-- 7. Numele filmului cu cele mai multe inchirieri
+SELECT filme.NUME_FILM, count(inchirieri.ID) from filme
+join inchirieri on inchirieri.id_film = filme.id
+group by filme.NUME_FILM
+order by count(inchirieri.ID) desc
+limit 1;
+-- 8. numele filmelor si clientii care le au inchiriat
+SELECT filme.NUME_FILM, clienti.nume, clienti.prenume from FILME
+inner join inchirieri on inchirieri.id_film=filme.ID
+inner join clienti on clienti.id=inchirieri.id_client
+-- 9. 
