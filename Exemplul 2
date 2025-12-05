@@ -1,0 +1,100 @@
+CREATE TABLE INSTITUȚII (
+ID int primary key, 
+NUME VARCHAR(50),
+TIP VARCHAR(25),
+LOCATIE VARCHAR(40),
+NR_STUDENTI INT,
+AN_FONDARE VARCHAR (6),
+WEBSITE VARCHAR(60)
+);
+
+CREATE TABLE CURSURI (
+ID INT PRIMARY KEY,
+NUME VARCHAR(30),
+ID_INSTITUTIE INT,
+PROFESOR VARCHAR(50),
+NR_ORE INT,
+DESCRIERE VARCHAR(50),
+foreign key (ID_INSTITUTIE) REFERENCES instituții(ID)
+);
+
+CREATE TABLE STUDENTI (
+ID INT PRIMARY KEY,
+NUME VARCHAR(50),
+Varsta int,
+gen varchar(30),
+ID_INSTITUTIE INT,
+EMAIL VARCHAR(50),
+TELEFON INT,
+DATA_INSCRIERE DATE,
+foreign key (ID_INSTITUTIE) REFERENCES instituții(ID)
+);
+
+CREATE TABLE RESURSE_EDUCATIONALE (
+ID INT PRIMARY KEY,
+Nume varchar(20),
+Tip varchar(20),
+ID_CURS INT,
+URL VARCHAR(20),
+AUTOR VARCHAR(30),
+foreign key (ID_CURS) REFERENCES CURSURI(ID)
+);
+
+CREATE TABLE INSCRIERI (
+ID INT PRIMARY KEY,
+ID_Student int,
+id_curs int,
+data_inscriere date,
+nota_finala decimal,
+status_final varchar(20),
+foreign key (ID_STUDENT) references STUDENTI(ID),
+foreign key (ID_CURS) REFERENCES cursuri(ID)
+);
+
+-- 1. Afisati toate numele si locatiile institutiile educationale. 
+SELECT NUME, LOCATIE FROM instituții;
+-- 2. Lista studentilor impreuna cu institutia la care sunt inscrisi. 
+SELECT STUDENTI.NUME, STUDENTI.ID, STUDENTI.VARSTA, STUDENTI.TELEFON, instituții.NUME FROM STUDENTI
+JOIN instituții ON instituții.ID= studenti.ID_INSTITUTIE;
+-- 3. Numarul total de studenti per institutie.
+Select Count(studenti.ID), instituții.NUME from studenti
+JOIN instituții ON instituții.ID= studenti.ID_INSTITUTIE
+group by instituții.NUME;
+-- 4. Numele cursurilor din fiecare institutie.
+Select cursuri.NUME, instituții.NUME from cursuri
+Join instituții on instituții.id = cursuri.ID_INSTITUTIE;
+-- 5. FACUT
+-- 6. Creati un view cu numele cursurilor si media notelor. 
+SELECT CURSURI.NUME, AVG(inscrieri.nota_finala) FROM cursuri
+INNER JOIN inscrieri ON inscrieri.id_curs = cursuri.ID
+group by CURSURI.NUME;
+-- 7. Numele studentilor care au finalizat un curs cu nota peste 8. 
+Select studenti.ID, studenti.NUME, instituții.NUME, inscrieri.nota_finala from studenti
+Inner join inscrieri on inscrieri.ID_Student = studenti.ID
+inner join instituții on instituții.ID = studenti.ID_INSTITUTIE
+where inscrieri.nota_finala >= 8;
+-- 8. Numarul de studenti per gen.
+SELECT COUNT(STUDENTI.ID), studenti.gen from studenti
+group by studenti.gen;
+-- 9. Numele celui mai vechi curs.
+SELECT cursuri.NUME, instituții.AN_FONDARE FROM cursuri
+Join instituții on instituții.id = cursuri.ID_INSTITUTIE
+order by instituții.AN_FONDARE asc
+limit 1;
+-- 10. Numele studentilor cei mai recenți inscriși.
+SELECT studenti.NUME, inscrieri.data_inscriere from studenti
+Inner join inscrieri on inscrieri.ID_Student = studenti.ID 
+order by inscrieri.data_inscriere desc;
+-- 11. Numele institutiilor care ofera peste 100 de ore de curs 
+select instituții.NUME, cursuri.NR_ORE from cursuri
+join instituții on instituții.id = cursuri.ID_INSTITUTIE
+where cursuri.NR_ORE >100
+order by cursuri.NR_ORE desc;
+-- 12. TOP 3 studenti CU CELE MAI MULTE CURSURI FINALIZATE 
+SELECT studenti.ID, studenti.NUME, studenti.TELEFON, studenti.EMAIL, instituții.NUME, count(inscrieri.status_final) from studenti
+Inner join inscrieri on inscrieri.ID_Student = studenti.ID
+inner join instituții on instituții.ID = studenti.ID_INSTITUTIE
+where inscrieri.status_final = 'promovat'
+group by studenti.ID, studenti.NUME, studenti.TELEFON, studenti.EMAIL, instituții.NUME
+order by count(inscrieri.status_final) desc
+limit 3;
